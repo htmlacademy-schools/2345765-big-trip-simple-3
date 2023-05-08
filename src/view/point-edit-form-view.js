@@ -1,6 +1,6 @@
-import {createElement} from '../render';
 import {convertToEditFormDateTime} from '../utils';
 import {getDestinationById, getOfferById} from '../mock/data';
+import AbstractView from '../framework/view/abstract-view';
 
 const createOffersTemplate = (offers) => {
   let offersTemplate = '';
@@ -143,28 +143,35 @@ const createEditFormTemplate = (tripPoint) => {
   );
 };
 
-export default class PointEditFormView {
+export default class PointEditFormView extends AbstractView {
   #tripPoint = null;
-  #element = null;
+  #handleFormSubmit = null;
+  #handleFormClose = null;
 
-  constructor(tripPoint) {
+  constructor({tripPoint, onFormSubmit, onFormClose}) {
+    super();
     this.#tripPoint = tripPoint;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleFormClose = onFormClose;
+
+    this.element.querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#formCloseHandler);
   }
 
   get template() {
     return createEditFormTemplate(this.#tripPoint);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #formCloseHandler = () => {
+    this.#handleFormClose();
+  };
 }
 
