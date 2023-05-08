@@ -143,26 +143,28 @@ const createEditFormTemplate = (tripPoint) => {
   );
 };
 
-export default class EditFormView {
+export default class PointEditFormView {
+  #tripPoint = null;
+  #element = null;
 
   constructor(tripPoint) {
-    this.tripPoint = tripPoint;
+    this.#tripPoint = tripPoint;
   }
 
-  getTemplate() {
-    return createEditFormTemplate(this.tripPoint);
+  get template() {
+    return createEditFormTemplate(this.#tripPoint);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
 
