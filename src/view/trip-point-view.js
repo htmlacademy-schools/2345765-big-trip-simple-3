@@ -1,4 +1,4 @@
-import {convertToEventDate, convertToEventDateTime} from '../utils';
+import {convertToEventDate, convertToEventDateTime} from '../utils/trip-point';
 import {getDestinationById, getOfferById} from '../mock/data';
 import AbstractView from '../framework/view/abstract-view';
 

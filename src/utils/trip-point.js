@@ -13,5 +13,12 @@ const convertToEventDate = (date) => (dayjs(date).format('MMM D'));
 
 const convertToEditFormDateTime = (date) => (dayjs(date).format('DD/MM/YY HH:mm'));
 
+const isTripPointFuture = (tripPoint) => {
+  const dateFrom = tripPoint.dateFrom;
+  const dateTo = tripPoint.dateTo;
 
-export {getRandomInteger, convertToEventDateTime, convertToEventDate, convertToEditFormDateTime};
+  return (dayjs().isAfter(dateFrom) && dayjs().isBefore(dateTo)) || dayjs().isSame(dateFrom) || dayjs().isBefore(dateFrom);
+};
+
+
+export {getRandomInteger, convertToEventDateTime, convertToEventDate, convertToEditFormDateTime, isTripPointFuture};
