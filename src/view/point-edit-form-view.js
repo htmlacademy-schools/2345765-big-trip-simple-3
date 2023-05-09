@@ -1,4 +1,4 @@
-import {convertToEditFormDateTime} from '../utils';
+import {convertToEditFormDateTime} from '../utils/trip-point';
 import {getDestinationById, getOfferById} from '../mock/data';
 import AbstractView from '../framework/view/abstract-view';
 

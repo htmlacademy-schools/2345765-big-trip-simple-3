@@ -1,9 +1,9 @@
-import {getRandomInteger} from '../utils';
+import {getRandomInteger} from '../utils/trip-point';
 
 const createPoint = (id, destination, offers, tripType) => ({
   'basePrice': getRandomInteger(0, 10000),
   'dateFrom': '2019-07-10T22:55:56.845Z',
-  'dateTo': '2019-07-11T11:22:13.375Z',
+  'dateTo': '2029-07-11T11:22:13.375Z',
   'destination': destination.id,
   'id': id,
   'offers': offers.map((obj) => obj.id),
