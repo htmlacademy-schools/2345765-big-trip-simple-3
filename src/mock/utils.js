@@ -1,4 +1,4 @@
-import {getRandomInteger} from '../utils/trip-point';
+import {getRandomInteger} from '../utils/common';
 
 const getRandomText = () => {
   const texts = ['Lorem ipsum dolor sit amet,',

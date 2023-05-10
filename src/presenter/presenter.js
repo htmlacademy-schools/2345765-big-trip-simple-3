@@ -1,13 +1,15 @@
-import TripPointView from '../view/trip-point-view';
 import TripEventsView from '../view/trip-events-view';
 import SortView from '../view/sort-view';
 import {render} from '../framework/render';
-import PointEditFormView from '../view/point-edit-form-view';
 import EmptyPointListView from '../view/empty-point-list-view';
+import PointPresenter from './point-presenter';
+import {updateItem} from '../utils/common';
 
 export default class BoardPresenter {
   #boardComponent = new TripEventsView();
   #emptyPointListComponent = new EmptyPointListView();
+  #sortComponent = new SortView();
+  #tripPointPresenter = new Map();
   #boardContainer = null;
   #tripPointsModel = null;
 
@@ -27,51 +29,49 @@ export default class BoardPresenter {
   };
 
   #renderTripPoint(tripPoint) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        replaceFormToTripEvent.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const tripPointComponent = new TripPointView(tripPoint,
-      () => {
-        replaceTripEventToForm.call(this);
-        document.addEventListener('keydown', escKeyDownHandler);
-      });
-    const tripPointEditComponent = new PointEditFormView({tripPoint: tripPoint,
-      onFormSubmit: () => {
-        replaceFormToTripEvent.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      },
-      onFormClose: () => {
-        replaceFormToTripEvent.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }});
-
-    function replaceTripEventToForm() {
-      this.#boardComponent.element.replaceChild(tripPointEditComponent.element, tripPointComponent.element);
-    }
-
-    function replaceFormToTripEvent() {
-      this.#boardComponent.element.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
-    }
-
-    render(tripPointComponent, this.#boardComponent.element);
+    const tripPointPresenter = new PointPresenter({
+      boardComponent: this.#boardComponent,
+      onModeChange: this.#handleModeChange
+    });
+    tripPointPresenter.init(tripPoint);
+    this.#tripPointPresenter.set(tripPoint.id, tripPointPresenter);
   }
 
-  #renderBoard() {
-    render(new SortView(), this.#boardContainer);
-    render(this.#boardComponent, this.#boardContainer);
+  #handleModeChange = () => {
+    this.#tripPointPresenter.forEach((presenter) => presenter.resetView());
+  };
 
-    // render(new CreateFormView(), this.boardComponent.getElement());
-    // render(new PointEditFormView(this.tripPoints[0]), this.boardComponent.getElement());
+  #handleTripPointChange = (updatedTripPoint) => {
+    this.#boardComponent = updateItem(this.#tripPoints, updatedTripPoint);
+    this.#tripPointPresenter.get(updatedTripPoint.id).init(updatedTripPoint);
+  };
 
+  #clearTripPoints() {
+    this.#tripPointPresenter.forEach((presenter) => presenter.destroy());
+    this.#tripPointPresenter.clear();
+  }
+
+  #renderNoTripPoints() {
+    render(this.#emptyPointListComponent, this.#boardComponent.element);
+  }
+
+  #renderTripPoints() {
     if (this.#tripPoints.length === 0) {
-      render(this.#emptyPointListComponent, this.#boardComponent.element);
+      this.#renderNoTripPoints();
     }
     for (let i = 0; i < this.#tripPoints.length; i++) {
       this.#renderTripPoint(this.#tripPoints[i]);
     }
+  }
+
+  #renderSort() {
+    render(this.#sortComponent, this.#boardComponent.element);
+  }
+
+  #renderBoard() {
+    render(this.#boardComponent, this.#boardContainer);
+    this.#renderSort();
+    this.#renderTripPoints();
+    // render(new CreateFormView(), this.boardComponent.getElement());
   }
 }

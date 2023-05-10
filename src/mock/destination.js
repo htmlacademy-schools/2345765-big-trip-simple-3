@@ -1,5 +1,5 @@
 import {getRandomText} from './utils';
-import {getRandomInteger} from '../utils/trip-point';
+import {getRandomInteger} from '../utils/common';
 
 const getRandomDestinationName = () => {
   const names = ['London', 'Chamonix', 'Ikea', 'Uber', 'Moscow', 'Salut', 'Diamond'];
