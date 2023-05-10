@@ -1,5 +1,5 @@
 import {getRandomText} from './utils';
-import {getRandomInteger} from '../utils/trip-point';
+import {getRandomInteger} from '../utils/common';
 
 const createRandomOffer = (id) => ({
   id,

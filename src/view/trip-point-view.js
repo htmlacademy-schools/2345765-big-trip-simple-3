@@ -58,7 +58,7 @@ export default class TripPointView extends AbstractView {
   #tripPoint = null;
   #handleEditClick = null;
 
-  constructor(tripPoint, onEditClick) {
+  constructor({tripPoint, onEditClick}) {
     super();
     this.#tripPoint = tripPoint;
     this.#handleEditClick = onEditClick;

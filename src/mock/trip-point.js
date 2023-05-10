@@ -1,4 +1,4 @@
-import {getRandomInteger} from '../utils/trip-point';
+import {getRandomInteger} from '../utils/common';
 
 const createPoint = (id, destination, offers, tripType) => ({
   'basePrice': getRandomInteger(0, 10000),
