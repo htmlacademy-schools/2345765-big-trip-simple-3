@@ -59,6 +59,7 @@ export default class {
 
   destroy() {
     remove(this.#tripPointComponent);
+
     remove(this.#editTripPointComponent);
   }
 
