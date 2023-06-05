@@ -1,9 +1,9 @@
 import {getRandomInteger} from '../utils/common';
 
-const createPoint = (id, destination, offers, tripType) => ({
+const createPoint = (id, destination, offers, tripType, dateFrom) => ({
   'basePrice': getRandomInteger(0, 10000),
-  'dateFrom': '2019-07-10T22:55:56.845Z',
-  'dateTo': '2029-07-11T11:22:13.375Z',
+  'dateFrom': `2019-07-${dateFrom}T22:55:56.845Z`,
+  'dateTo': `2019-07-${getRandomInteger(dateFrom, 30)}T11:22:13.375Z`,
   'destination': destination.id,
   'id': id,
   'offers': offers.map((obj) => obj.id),
@@ -20,7 +20,8 @@ function makePointGenerator (maxId) {
       newId = getRandomInteger(0, maxId);
     }
     usedIds.push(newId);
-    return createPoint(newId, destination, offers, tripType);
+    const dateFrom = getRandomInteger(10, 30);
+    return createPoint(newId, destination, offers, tripType, dateFrom);
   };
 }
 
