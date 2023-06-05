@@ -4,6 +4,9 @@ import {render} from '../framework/render';
 import EmptyPointListView from '../view/empty-point-list-view';
 import PointPresenter from './point-presenter';
 import {updateItem} from '../utils/common';
+import {SortType} from '../const';
+import {sortTripPointDateUp, sortTripPointPriceUp} from '../utils/trip-point';
+
 
 export default class BoardPresenter {
   #boardComponent = new TripEventsView();
@@ -12,6 +15,7 @@ export default class BoardPresenter {
   #tripPointPresenter = new Map();
   #boardContainer = null;
   #tripPointsModel = null;
+  #currentSortType = SortType.DATE_UP;
 
   #tripPoints = [];
 
@@ -28,14 +32,14 @@ export default class BoardPresenter {
 
   };
 
-  #renderTripPoint(tripPoint) {
+  #renderTripPoint = (tripPoint) => {
     const tripPointPresenter = new PointPresenter({
       boardComponent: this.#boardComponent,
       onModeChange: this.#handleModeChange
     });
     tripPointPresenter.init(tripPoint);
     this.#tripPointPresenter.set(tripPoint.id, tripPointPresenter);
-  }
+  };
 
   #handleModeChange = () => {
     this.#tripPointPresenter.forEach((presenter) => presenter.resetView());
@@ -46,32 +50,54 @@ export default class BoardPresenter {
     this.#tripPointPresenter.get(updatedTripPoint.id).init(updatedTripPoint);
   };
 
-  #clearTripPoints() {
+  #sortTripPoints = (sortType) => {
+    if (sortType === SortType.DATE_UP) {
+      this.#tripPoints.sort(sortTripPointDateUp);
+    } else {
+      this.#tripPoints.sort(sortTripPointPriceUp);
+    }
+
+    this.#currentSortType = sortType;
+  };
+
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortTripPoints(sortType);
+    this.#clearTripPoints();
+    this.#renderTripPoints();
+  };
+
+  #clearTripPoints = () => {
     this.#tripPointPresenter.forEach((presenter) => presenter.destroy());
     this.#tripPointPresenter.clear();
-  }
+  };
 
-  #renderNoTripPoints() {
+  #renderNoTripPoints = () => {
     render(this.#emptyPointListComponent, this.#boardComponent.element);
-  }
+  };
 
-  #renderTripPoints() {
+  #renderTripPoints = () => {
     if (this.#tripPoints.length === 0) {
       this.#renderNoTripPoints();
     }
     for (let i = 0; i < this.#tripPoints.length; i++) {
       this.#renderTripPoint(this.#tripPoints[i]);
     }
-  }
+  };
 
-  #renderSort() {
+  #renderSort = () => {
     render(this.#sortComponent, this.#boardComponent.element);
-  }
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+  };
 
-  #renderBoard() {
+  #renderBoard = () => {
     render(this.#boardComponent, this.#boardContainer);
     this.#renderSort();
     this.#renderTripPoints();
     // render(new CreateFormView(), this.boardComponent.getElement());
-  }
+  };
 }
