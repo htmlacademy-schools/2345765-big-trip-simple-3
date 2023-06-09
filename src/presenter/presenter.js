@@ -2,7 +2,7 @@ import TripEventsView from '../view/trip-events-view';
 import SortView from '../view/sort-view';
 import {render} from '../framework/render';
 import EmptyPointListView from '../view/empty-point-list-view';
-import PointPresenter from './point-presenter';
+import TripPointPresenter from './point-presenter';
 import {updateItem} from '../utils/common';
 import {SortType} from '../const';
 import {sortTripPointDateUp, sortTripPointPriceUp} from '../utils/trip-point';
@@ -18,6 +18,8 @@ export default class BoardPresenter {
   #currentSortType = SortType.DATE_UP;
 
   #tripPoints = [];
+  #destinations = [];
+  #offersByType = [];
 
   constructor(boardContainer, tripPointsModel) {
     this.#boardContainer = boardContainer;
@@ -27,17 +29,20 @@ export default class BoardPresenter {
 
   init = () => {
     this.#tripPoints = [...this.#tripPointsModel.tripPoints];
+    this.#destinations = [...this.#tripPointsModel.destinations];
+    this.#offersByType = [...this.#tripPointsModel.offersByType];
 
     this.#renderBoard();
 
   };
 
   #renderTripPoint = (tripPoint) => {
-    const tripPointPresenter = new PointPresenter({
-      boardComponent: this.#boardComponent,
+    const tripPointPresenter = new TripPointPresenter({
+      boardComponent: this.#boardComponent.element,
+      onTripPointChange: this.#handleTripPointChange,
       onModeChange: this.#handleModeChange
     });
-    tripPointPresenter.init(tripPoint);
+    tripPointPresenter.init(tripPoint, this.#destinations, this.#offersByType);
     this.#tripPointPresenter.set(tripPoint.id, tripPointPresenter);
   };
 
@@ -46,8 +51,8 @@ export default class BoardPresenter {
   };
 
   #handleTripPointChange = (updatedTripPoint) => {
-    this.#boardComponent = updateItem(this.#tripPoints, updatedTripPoint);
-    this.#tripPointPresenter.get(updatedTripPoint.id).init(updatedTripPoint);
+    this.#tripPoints = updateItem(this.#tripPoints, updatedTripPoint);
+    this.#tripPointPresenter.get(updatedTripPoint.id).init(updatedTripPoint, this.#destinations, this.#offersByType);
   };
 
   #sortTripPoints = (sortType) => {

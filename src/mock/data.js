@@ -13,7 +13,7 @@ const offers = getRandomOffers(offersCount);
 const offersByType = getOffersByType(offers, tripTypes);
 
 const pointsCount = 5;
-export const tripPoints = getRandomTripPoints(destinations, offersByType, tripTypes, pointsCount);
+const tripPoints = getRandomTripPoints(destinations, offersByType, tripTypes, pointsCount);
 
 export const getDestinationById = (id) => {
   for (const destination of destinations) {
@@ -30,4 +30,6 @@ export const getOfferById = (id) => {
     }
   }
 };
+
+export {destinations, tripPoints, offersByType};
 

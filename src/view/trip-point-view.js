@@ -20,7 +20,7 @@ const createOffersTemplate = (offers) => {
 };
 
 const createTripPointTemplate = (tripPoint) => {
-  const {basePrice, dateFrom, dateTo, destination, offers, type} = tripPoint;
+  const {basePrice, dateFrom, dateTo, destination, offers, type: eventType} = tripPoint;
   const eventDate = convertToEventDate(dateFrom);
   const eventDateTimeFrom = convertToEventDateTime(dateFrom);
   const eventDateTimeTo = convertToEventDateTime(dateTo);
@@ -30,9 +30,9 @@ const createTripPointTemplate = (tripPoint) => {
               <div class="event">
                 <time class="event__date" datetime=${dateFrom}>${eventDate}</time>
                 <div class="event__type">
-                  <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+                  <img class="event__type-icon" width="42" height="42" src="img/icons/${eventType}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${type} ${destinationName}</h3>
+                <h3 class="event__title">${eventType} ${destinationName}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime=${dateFrom}>${eventDateTimeFrom}</time>

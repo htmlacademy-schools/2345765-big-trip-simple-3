@@ -9,5 +9,10 @@ const updateItem = (items, update) => (
   items.map((item) => item.id === update.id ? update : item)
 );
 
+const ucFirst = (str) => {
+  if (!str) {return str;}
 
-export {getRandomInteger, updateItem};
+  return str[0].toUpperCase() + str.slice(1);
+};
+
+export {getRandomInteger, updateItem, ucFirst};

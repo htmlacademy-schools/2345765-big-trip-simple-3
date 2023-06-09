@@ -1,4 +1,5 @@
 import {getRandomInteger} from '../utils/common';
+import {getOffersByTypeFromList} from '../utils/trip-point';
 
 const createPoint = (id, destination, offers, tripType, dateFrom) => ({
   'basePrice': getRandomInteger(0, 10000),
@@ -25,21 +26,13 @@ function makePointGenerator (maxId) {
   };
 }
 
-const getOfferByTypeFromList = (offersByType, offerType) => {
-  for (const offerByType of offersByType) {
-    if (offerByType.type === offerType) {
-      return offerByType;
-    }
-  }
-};
-
 export const getRandomTripPoints = (destinations, offersByTypeList, tripTypes, pointsCount) => {
   const tripPoints = [];
   const generatePoint = makePointGenerator(pointsCount);
   for (let i = 0; i < pointsCount; i++) {
     const tripType = tripTypes[getRandomInteger(0, tripTypes.length - 1)];
     const destination = destinations[getRandomInteger(0, destinations.length - 1)];
-    const offersByType = getOfferByTypeFromList(offersByTypeList, tripType);
+    const offersByType = getOffersByTypeFromList(offersByTypeList, tripType);
     const newTripPoint = generatePoint(destination, offersByType, tripType);
     tripPoints.push(newTripPoint);
   }

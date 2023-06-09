@@ -7,24 +7,30 @@ const Mode = {
   EDITING: 'EDITING'
 };
 
-export default class {
+export default class TripPointPresenter {
   #boardComponent = null;
 
   #tripPointComponent = null;
   #editTripPointComponent = null;
 
   #tripPoint = null;
+  #destinations = [];
+  #offersByType = [];
 
   #handleModeChange = null;
+  #handleTripPointChange = null;
   #mode = Mode.DEFAULT;
 
-  constructor({boardComponent, onModeChange}) {
+  constructor({boardComponent, onTripPointChange, onModeChange}) {
     this.#boardComponent = boardComponent;
+    this.#handleTripPointChange = onTripPointChange;
     this.#handleModeChange = onModeChange;
   }
 
-  init(tripPoint) {
+  init(tripPoint, destinations, offersByType) {
     this.#tripPoint = tripPoint;
+    this.#destinations = destinations;
+    this.#offersByType = offersByType;
 
     const prevTripPointComponent = this.#tripPointComponent;
     const prevEditTripPointComponent = this.#editTripPointComponent;
@@ -36,12 +42,15 @@ export default class {
 
     this.#editTripPointComponent = new PointEditFormView({
       tripPoint: this.#tripPoint,
-      onFormSubmit: this.#handleFormSubmit,
+      destinations: this.#destinations,
+      offersByType: this.#offersByType,
       onFormClose: this.#handleFormClose
     });
 
+    this.#editTripPointComponent.setFormSubmitHandler(this.#handleFormSubmit);
+
     if (prevEditTripPointComponent === null || prevTripPointComponent === null) {
-      render(this.#tripPointComponent, this.#boardComponent.element);
+      render(this.#tripPointComponent, this.#boardComponent);
       return;
     }
 
@@ -65,38 +74,44 @@ export default class {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#editTripPointComponent.reset(this.#tripPoint);
       this.#replaceFormToTripEvent();
     }
   }
 
   #replaceTripEventToForm() {
-    this.#boardComponent.element.replaceChild(this.#editTripPointComponent.element, this.#tripPointComponent.element);
+    this.#boardComponent.replaceChild(this.#editTripPointComponent.element, this.#tripPointComponent.element);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
     this.#mode = Mode.EDITING;
   }
 
   #replaceFormToTripEvent() {
-    this.#boardComponent.element.replaceChild(this.#tripPointComponent.element, this.#editTripPointComponent.element);
+    this.#boardComponent.replaceChild(this.#tripPointComponent.element, this.#editTripPointComponent.element);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   }
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this.#editTripPointComponent.reset(this.#tripPoint);
       this.#replaceFormToTripEvent();
     }
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (tripPoint) => {
+    this.#handleTripPointChange(tripPoint);
     this.#replaceFormToTripEvent();
   };
 
   #handleFormClose = () => {
+    this.#editTripPointComponent.reset(this.#tripPoint);
     this.#replaceFormToTripEvent();
   };
 
   #handleEditForm = () => {
     this.#replaceTripEventToForm();
   };
+
 }
