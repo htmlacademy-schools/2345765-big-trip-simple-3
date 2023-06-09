@@ -8,5 +8,7 @@ const SortType = {
   PRICE_DOWN: 'price-down'
 };
 
-export {FilterType, SortType};
+const eventTypes = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+
+export {FilterType, SortType, eventTypes};
 

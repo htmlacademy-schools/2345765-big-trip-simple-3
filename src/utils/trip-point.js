@@ -17,4 +17,20 @@ const sortTripPointDateUp = (tripPointA, tripPointB) => dayjs(tripPointA.dateFro
 
 const sortTripPointPriceUp = (tripPointA, tripPointB) => tripPointA.basePrice - tripPointB.basePrice;
 
-export {convertToEventDateTime, convertToEventDate, convertToEditFormDateTime, isTripPointFuture, sortTripPointDateUp, sortTripPointPriceUp};
+const getObjectById = (id, objects) => {
+  for (const object of objects) {
+    if (object.id === id) {
+      return object;
+    }
+  }
+};
+
+const getOffersByTypeFromList = (offersByType, offerType) => {
+  for (const offerByType of offersByType) {
+    if (offerByType.type === offerType) {
+      return offerByType;
+    }
+  }
+};
+
+export {convertToEventDateTime, convertToEventDate, convertToEditFormDateTime, isTripPointFuture, sortTripPointDateUp, sortTripPointPriceUp, getObjectById, getOffersByTypeFromList};
