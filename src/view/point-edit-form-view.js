@@ -3,6 +3,9 @@ import {getDestinationById, getOfferById} from '../mock/data';
 import {eventTypes} from '../const';
 import {ucFirst} from '../utils/common';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 
 const BLANK_TRIP_POINT = {
@@ -16,14 +19,14 @@ const BLANK_TRIP_POINT = {
 };
 
 
-const createOffersTemplate = (offers) => {
+const createOffersTemplate = (offers, tripPointId) => {
   let template = '';
   for (const offerId of offers) {
     const offer = getOfferById(offerId);
     template += `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerId}-1" type="checkbox" name="event-offer-${offerId}">
-        <label class="event__offer-label" for="event-offer-${offerId}-1">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerId}-${tripPointId}" type="checkbox" name="event-offer-${offerId}">
+        <label class="event__offer-label" for="event-offer-${offerId}-${tripPointId}">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${offer.price}</span>
@@ -59,7 +62,7 @@ const createEditFormTemplate = (tripPoint, destinations) => {
   const destinationObject = getDestinationById(destinationId);
   const destinationName = destinationObject.name;
   const destinationDescription = destinationObject.description;
-  const offersTemplate = createOffersTemplate(offers);
+  const offersTemplate = createOffersTemplate(offers, tripPoint.id);
   const eventTypesTemplate = createEventTypeListTemplate(eventType, tripPoint.id);
   const destinationListTemplate = createDestinationListTemplate(destinations);
   return (`<li class="trip-events__item">
@@ -91,19 +94,19 @@ const createEditFormTemplate = (tripPoint, destinations) => {
         </div>
 
         <div class="event__field-group  event__field-group--time">
-          <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formDateTimeFrom}">
+          <label class="visually-hidden" for="event-start-time-${tripPoint.id}">From</label>
+          <input class="event__input  event__input--time" id="event-start-time-${tripPoint.id}" type="text" name="event-start-time" value="${formDateTimeFrom}">
           &mdash;
-          <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formDateTimeTo}">
+          <label class="visually-hidden" for="event-end-time-${tripPoint.id}">To</label>
+          <input class="event__input  event__input--time" id="event-end-time-${tripPoint.id}" type="text" name="event-end-time" value="${formDateTimeTo}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
-          <label class="event__label" for="event-price-1">
+          <label class="event__label" for="event-price-${tripPoint.id}">
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+          <input class="event__input  event__input--price" id="event-price-${tripPoint.id}" type="text" name="event-price" value="${basePrice}">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -137,6 +140,9 @@ export default class PointEditFormView extends AbstractStatefulView {
   #destinations = null;
   #offersByType = null;
 
+  #dateFrompicker = null;
+  #dateTopicker = null;
+
   constructor({tripPoint = BLANK_TRIP_POINT, destinations, offersByType, onFormClose}) {
     super();
     this.#tripPoint = tripPoint;
@@ -159,10 +165,24 @@ export default class PointEditFormView extends AbstractStatefulView {
     );
   };
 
-  setFormSubmitHandler = (callback) => {
-    this._callback.formSubmit = callback;
-    this.element.querySelector('form')
-      .addEventListener('submit', this.#formSubmitHandler);
+  removeElement() {
+    super.removeElement();
+    if (this.#dateFrompicker) {
+      this.#dateFrompicker.destroy();
+      this.#dateFrompicker = null;
+    }
+  }
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate
+    });
   };
 
   #formSubmitHandler = (evt) => {
@@ -192,6 +212,7 @@ export default class PointEditFormView extends AbstractStatefulView {
   };
 
   _restoreHandlers() {
+    this.#setDatePickers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#formCloseHandler);
@@ -200,6 +221,35 @@ export default class PointEditFormView extends AbstractStatefulView {
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#changeDestinationHandler);
   }
+
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.element.querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+  };
+
+  #setDatePickers = () => {
+    this.#dateFrompicker = flatpickr(
+      this.element.querySelector(`#event-start-time-${this.#tripPoint.id}`),
+      {
+        dateFormat: 'j/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+        time_24hr: true,
+      },
+    );
+    this.#dateTopicker = flatpickr(
+      this.element.querySelector(`#event-end-time-${this.#tripPoint.id}`),
+      {
+        dateFormat: 'j/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dateTo,
+        onChange: this.#dateToChangeHandler,
+        time_24hr: true,
+      },
+    );
+  };
 
   static parseTripPointToState(tripPoint) {
     return {...tripPoint,
